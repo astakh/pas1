@@ -1,12 +1,12 @@
 # Голосовой ассистент (Android, полностью офлайн)
 
-Конвейер: **микрофон в фоне → кодовое слово (Porcupine) → распознавание команды (Vosk STT) → озвучка ответа (системный TTS)**. Всё выполняется на устройстве, интернет приложению не нужен (и не запрошен в манифесте).
+Конвейер: **микрофон в фоне → кодовое слово (Vosk) → распознавание команды (Vosk STT) → озвучка ответа (системный TTS)**. Всё выполняется на устройстве, интернет приложению не нужен (и не запрошен в манифесте).
 
 ## Стек
 | Часть | Библиотека | Версия |
 |---|---|---|
 | Язык / UI | Kotlin 1.9.24, Jetpack Compose (Material3) | BOM 2024.06 |
-| Wake word | Picovoice Porcupine (`ai.picovoice:porcupine-android`) | 3.0.0 |
+| Wake word | Picovoice Vosk (`ai.picovoice:porcupine-android`) | 3.0.0 |
 | STT | Vosk (`com.alphacephei:vosk-android`, пакет `org.vosk.*`) | 0.3.47 |
 | TTS | Android `TextToSpeech` (системный, ru-локаль) | — |
 | Фон | Foreground Service (`foregroundServiceType="microphone"`) | AGP 8.5.2, Gradle 8.7, compileSdk 34, minSdk 24 |
@@ -17,7 +17,7 @@
 ```
 MainActivity (Compose UI, запрос разрешений)
    └─ AssistantService (LifecycleService, foreground)
-        ├─ wakeword/WakeWordDetector.kt  — PorcupineManager, слушает 24/7
+        ├─ wakeword/WakeWordDetector.kt  — VoskManager, слушает 24/7
         ├─ stt/VoskStt.kt                — AudioRecord+Recognizer, одна фраза по пробуждению
         ├─ tts/TtsEngine.kt              — speakAndWait (пока говорит — микрофон выключен)
         └─ state/AssistantState.kt       — StateFlow для отображения фазы в UI
@@ -29,13 +29,13 @@ wake → `pause()` детектора (освобождает микрофон) 
 
 ### 1. AccessKey Picovoice (обязательно)
 1. Зарегистрируйтесь бесплатно на https://console.picovoice.ai
-2. Скопируйте **AccessKey** (Porcupine → AccessKey).
+2. Скопируйте **AccessKey** (Vosk → AccessKey).
 3. Вставьте его в `app/src/main/java/.../Config.kt` → `WAKE_KEYWORDS`.
    ⚠️ Ключ привязан к вашему аккаунту — **не коммитьте его в публичный репозиторий**.
 
 ### 2. Кодовое слово
 По умолчанию настроено русское кастомное слово **«Внимание»**:
-- На https://console.picovoice.ai → Porcupine → *Training Keyword*: язык **Russian**, текст транслитом `vnimanie` (2–4 слога), скачайте `.ppn` и положите в `app/src/main/assets/vnimanie_russian.ppn`.
+- На https://console.picovoice.ai → Vosk → *Training Keyword*: язык **Russian**, текст транслитом `vnimanie` (2–4 слога), скачайте `.ppn` и положите в `app/src/main/assets/vnimanie_russian.ppn`.
 
 Быстрый вариант для проверки без генерации — встроенное слово **JARVIS**: в `Config.kt` закомментируйте блок `CustomKeyword` и раскомментируйте строку с `BuiltInKeyword.JARVIS` (файл `.ppn` тогда не нужен).
 
@@ -83,10 +83,10 @@ jarsigner -keystore release.jks app/build/outputs/apk/release/app-release-unsign
 
 ## Известные ограничения / что дальше
 - Ответ сейчас — эхо-заглушка; реальную логику ассистента добавляйте в `AssistantService.onKeywordHeard()` вместо строки `val reply = ...`.
-- Porcupine требует отдельный захват микрофона, поэтому на время STT детектор ставится на паузу (реализовано через pause/resume).
+- Vosk требует отдельный захват микрофона, поэтому на время STT детектор ставится на паузу (реализовано через pause/resume).
 - Эмуляторы x86 32-bit не поддерживаются (в build.gradle.kts оставлены armeabi-v7a, arm64-v8a, x86_64) — тестируйте на реальном телефоне или x86_64-образе.
 - На некоторых OEM-прошивках для вечной фоновой работы отключите оптимизацию батареи для приложения (Настройки → Приложения → игнорировать оптимизацию батареи).
-- Русские встроенные слова у Porcupine отсутствуют — только кастомные .ppn (см. шаг 2).
+- Русские встроенные слова у Vosk отсутствуют — только кастомные .ppn (см. шаг 2).
 
 ## Структура проекта
 ```
