@@ -42,26 +42,23 @@ app/src/main/assets/vosk/vosk-model-small-ru-0.22/am/final.mdl
 
 ## Шаг 2. Кодовое слово — выберите ОДИН вариант
 
-### Вариант А — «JARVIS» (проще всех, .ppn НЕ нужен)
+### Вариант А — «JARVIS» (проще всех, .ppn НЕ нужен) ✅ ПО УМОЛЧАНИЮ
 
-В `Config.kt` поменяйте блок `WAKE_KEYWORD` местами:
-```kotlin
-// ЗАКОММЕНТИРУЙТЕ этот блок:
-// val WAKE_KEYWORD: WakeWord = WakeWord.CustomKeyword(
-//     label = "внимание",
-//     ppnAssetPath = "vnimanie_russian.ppn"
-// )
+Ничего делать не нужно — проект уже настроен на встроенное слово **JARVIS**
+(`Config.kt` → `WakeWord.BuiltInKeyword(Porcupine.BuiltInKeyword.JARVIS)`).
+Готовый APK с этим словом лежит в `/workspace/release/VoiceAssistant-debug-JARVIS.apk`.
+Переходите сразу к Шагу 3 (или просто установите готовый APK после Шага 1).
 
-// РАСКОММЕНТИРУЙТЕ эту строку:
-val WAKE_KEYWORD: WakeWord = WakeWord.BuiltInKeyword(Porcupine.BuiltInKeyword.JARVIS)
-```
-Не забудьте добавить импорт в начало файла (если IDE не предложит сам):
-```kotlin
-import ai.picovoice.porcupine.Porcupine
-```
-Переходите сразу к Шагу 3.
+⚠️ ВАЖНО: модель Vosk из Шага 1 обязательна даже для готового APK — она должна
+быть внутри APK на момент сборки. Готовый APK собран БЕЗ модели: приложение
+запустится, будет ловить «Jarvis», но на этапе распознавания команды покажет
+ошибку загрузки модели. Для полноценного теста пересоберите APK после Шага 1.
 
 ### Вариант Б — русское «Внимание» (нужен .ppn файл)
+
+В `Config.kt` поменяйте блок `WAKE_KEYWORD` местами (раскомментируйте
+`CustomKeyword`, закомментируйте `BuiltInKeyword`) — имена строк уже подписаны
+в комментарии. Импорт `ai.picovoice.porcupine.Porcupine` в файле уже есть.
 
 1. В той же консоли https://console.picovoice.ai откройте
    **Porcupine → Training Keyword**.
