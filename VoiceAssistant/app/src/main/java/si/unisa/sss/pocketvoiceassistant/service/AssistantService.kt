@@ -6,7 +6,6 @@ import android.app.NotificationManager
 import android.app.PendingIntent
 import android.content.Intent
 import android.os.Build
-import android.os.IBinder
 import androidx.core.app.NotificationCompat
 import androidx.lifecycle.LifecycleService
 import kotlinx.coroutines.CoroutineScope
@@ -133,11 +132,7 @@ class AssistantService : LifecycleService() {
         }
     }
 
-    override fun onBind(intent: Intent?): IBinder? {
-        super.onBind(intent)
-        return null
-    }
-
+    // LifecycleService в androidx 2.8+ объявляет onBind(final Intent) — переопределять нельзя.
     override fun onDestroy() {
         cancelFlag.value = true
         wake.release()

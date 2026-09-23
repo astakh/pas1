@@ -19,18 +19,26 @@ class TtsEngine(context: Context) {
 
     @Volatile private var latch: CountDownLatch? = null
 
-    private val tts = TextToSpeech(context.applicationContext) { status ->
-        if (status == TextToSpeech.SUCCESS) {
-            val result = tts.setLanguage(Locale.forLanguageTag(Config.TTS_LANGUAGE))
-            ready = result != TextToSpeech.LANG_MISSING_DATA &&
-                    result != TextToSpeech.LANG_NOT_SUPPORTED
-            tts.setOnUtteranceProgressListener(object : UtteranceProgressListener() {
-                override fun onStart(utteranceId: String?) {}
-                override fun onDone(utteranceId: String?) { latch?.countDown() }
-                @Deprecated("deprecated in API 21")
-                override fun onError(utteranceId: String?) { latch?.countDown() }
-            })
-        }
+    // Колбэк инициализации передаём в конструктор: поля к этому моменту уже готовы,
+    // ссылка на `tts` внутри колбэка не используется.
+    private val tts: TextToSpeech = TextToSpeech(context.applicationContext) { status ->
+        if (status == TextToSpeech.SUCCESS) onTtsReady()
+    }
+
+    init {
+        tts.setOnUtteranceProgressListener(object : UtteranceProgressListener() {
+            override fun onStart(utteranceId: String?) {}
+            override fun onDone(utteranceId: String?) { latch?.countDown() }
+            @Deprecated("deprecated in API 21")
+            override fun onError(utteranceId: String?) { latch?.countDown() }
+            override fun onError(utteranceId: String?, errorCode: Int) { latch?.countDown() }
+        })
+    }
+
+    private fun onTtsReady() {
+        val result = tts.setLanguage(Locale.forLanguageTag(Config.TTS_LANGUAGE))
+        ready = result != TextToSpeech.LANG_MISSING_DATA &&
+                result != TextToSpeech.LANG_NOT_SUPPORTED
     }
 
     fun isReady(): Boolean = ready

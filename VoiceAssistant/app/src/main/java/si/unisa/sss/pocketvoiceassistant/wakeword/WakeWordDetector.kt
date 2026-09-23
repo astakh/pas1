@@ -30,7 +30,8 @@ class WakeWordDetector(private val context: Context) {
                     builder.setKeywordPath(copyAsset(context, kw.ppnAssetPath))
             }
 
-            val m = builder.build(context) { _, _ -> onWake() }
+            // PorcupineManagerCallback.invoke(keywordIndex: Int) — одна буква/индекс
+            val m = builder.build(context) { _ -> onWake() }
             manager = m
             m.start()
         } catch (e: Exception) {
