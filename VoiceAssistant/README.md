@@ -23,7 +23,7 @@ MainActivity (Compose UI, запрос разрешений)
         └─ state/AssistantState.kt       — StateFlow для отображения фазы в UI
 ```
 Логика конвейера в `AssistantService.onKeywordHeard()`:
-wake → `pause()` детектора (освобождает микрофон) → `listenOnce()` (Vosk, до 8 с или до тишины) → заглушка-ответ «Вы сказали: …» → TTS → `resume()` детектора.
+wake → `pause()` детектора (освобождает микрофон) → `listenOnce()` (Vosk, до 10 с или до тишины) → заглушка-ответ «Вы сказали: …» → TTS → `resume()` детектора.
 
 ## Что нужно подготовить перед сборкой (5–10 минут)
 
@@ -41,10 +41,9 @@ wake → `pause()` детектора (освобождает микрофон) 
 
 ### 3. Модель Vosk (русская, офлайн)
 Скачайте и **распакуйте** в `app/src/main/assets/vosk/`:
-- полная (~1,8 ГБ): https://alphacephei.com/vosk/models/vosk-model-ru-0.42.zip
-- маленькая для тестов (~46 МБ, рекомендую для MVP): https://alphacephei.com/vosk/models/vosk-model-small-ru-0.22.zip
+- маленькая для тестов (~46 МБ, по умолчанию настроена именно она): https://alphacephei.com/vosk/models/vosk-model-small-ru-0.22.zip
+- полная (~1,8 ГБ, точнее): https://alphacephei.com/vosk/models/vosk-model-ru-0.42.zip — тогда поменяйте в `Config.kt`: `VOSK_MODEL_ASSET_DIR = "vosk-model-ru-0.42"`.
 
-Если взяли small — поменяйте в `Config.kt`: `VOSK_MODEL_ASSET_DIR = "vosk-model-small-ru-0.22"`.
 Каталог должен выглядеть так: `assets/vosk/vosk-model-small-ru-0.22/{am,conf,graph,ivector,...}`.
 
 ## Сборка APK

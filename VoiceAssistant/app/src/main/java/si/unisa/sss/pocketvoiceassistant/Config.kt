@@ -22,8 +22,12 @@ object Config {
     /** Порог чувствительности wake-детектора 0..1 (выше — чаще срабатывает, больше ложных). */
     const val WAKE_SENSITIVITY: Float = 0.65f
 
-    /** Модель Vosk для распознавания русской речи (копируется в filesDir при первом запуске). */
-    const val VOSK_MODEL_ASSET_DIR: String = "vosk-model-ru-0.42"
+    /**
+     * Модель Vosk для распознавания русской речи (копируется в filesDir при первом запуске).
+     * ВАЖНО: это имя каталога внутри app/src/main/assets/vosk/ — оно должно совпадать
+     * с названием распакованной модели (vosk-model-small-ru-0.22).
+     */
+    const val VOSK_MODEL_ASSET_DIR: String = "vosk-model-small-ru-0.22"
 
     /** Язык системного TTS. */
     const val TTS_LANGUAGE: String = "ru-RU"

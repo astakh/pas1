@@ -19,6 +19,7 @@ import si.unisa.sss.pocketvoiceassistant.R
 import si.unisa.sss.pocketvoiceassistant.WakeWord
 import si.unisa.sss.pocketvoiceassistant.state.AssistantState
 import si.unisa.sss.pocketvoiceassistant.stt.BooleanHolder
+import si.unisa.sss.pocketvoiceassistant.stt.ModelNotLoadedException
 import si.unisa.sss.pocketvoiceassistant.stt.VoskStt
 import si.unisa.sss.pocketvoiceassistant.tts.TtsEngine
 import si.unisa.sss.pocketvoiceassistant.wakeword.WakeWordDetector
@@ -77,7 +78,14 @@ class AssistantService : LifecycleService() {
 
         scope.launch {
             try {
-                val text = stt.listenOnce(Config.COMMAND_TIMEOUT_MS, cancelFlag)
+                val text = try {
+                    stt.listenOnce(Config.COMMAND_TIMEOUT_MS, cancelFlag)
+                } catch (e: ModelNotLoadedException) {
+                    // Модель ещё грузится или отсутствует в assets — не роняем сервис
+                    AssistantState.update { it.copy(phase = e.message ?: "Модель Vosk недоступна") }
+                    wake.resume()
+                    return@launch
+                }
                 AssistantState.update { it.copy(phase = "Обработка…", heardText = text) }
 
                 // Здесь будет логика ассистента; пока — эхо-ответ

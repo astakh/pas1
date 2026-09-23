@@ -33,6 +33,8 @@ class VoskStt(private val context: Context) {
         model = Model(modelDir.absolutePath)
     }
 
+    fun isModelLoaded(): Boolean = model != null
+
     /**
      * Блокирующая запись+распознавание одной фразы.
      * Завершается по тишине (Vosk segment-end), по [Config.COMMAND_TIMEOUT_MS]
@@ -40,7 +42,10 @@ class VoskStt(private val context: Context) {
      */
     @SuppressLint("MissingPermission") // RECORD_AUDIO запрошен в MainActivity
     fun listenOnce(timeoutMs: Long, cancelFlag: BooleanHolder): String {
-        val m = model ?: throw IllegalStateException("Модель Vosk не загружена")
+        val m = model ?: throw ModelNotLoadedException(
+            "Модель распознавания ещё загружается (первый запуск может занять 1–3 минуты) " +
+                    "или отсутствует в assets/vosk/. Повторите кодовое слово позже."
+        )
         val rec = Recognizer(m, SAMPLE_RATE.toFloat())
         val minBuf = AudioRecord.getMinBufferSize(
             SAMPLE_RATE, AudioFormat.CHANNEL_IN_MONO, AudioFormat.ENCODING_PCM_16BIT
@@ -117,3 +122,6 @@ class VoskStt(private val context: Context) {
 
 /** Простая мутируемая обёртка для флага отмены из другого потока. */
 class BooleanHolder(@Volatile var value: Boolean = false)
+
+/** Модель Vosk ещё не готова (грузится или отсутствует в assets). */
+class ModelNotLoadedException(message: String) : Exception(message)
