@@ -1,5 +1,7 @@
 package si.unisa.sss.pocketvoiceassistant
 
+import ai.picovoice.porcupine.Porcupine
+
 /**
  * Единая точка конфигурации. Перед сборкой заполните значения ниже
  * (см. README.md, раздел «Что нужно подготовить»).
@@ -13,11 +15,11 @@ object Config {
      *  - встроенное: BuiltInKeyword.JARVIS (или любой другой из enum)
      *  - кастомное (например русское): CustomKeyword("vnimanie", "assets:///vnimanie_russian.ppn")
      */
-    // val WAKE_KEYWORD: WakeWord = WakeWord.BuiltInKeyword(Porcupine.BuiltInKeyword.JARVIS)
-    val WAKE_KEYWORD: WakeWord = WakeWord.CustomKeyword(
-        label = "внимание",
-        ppnAssetPath = "vnimanie_russian.ppn" // файл лежит в app/src/main/assets/
-    )
+    val WAKE_KEYWORD: WakeWord = WakeWord.BuiltInKeyword(Porcupine.BuiltInKeyword.JARVIS)
+    // val WAKE_KEYWORD: WakeWord = WakeWord.CustomKeyword(
+    //     label = "внимание",
+    //     ppnAssetPath = "vnimanie_russian.ppn" // файл лежит в app/src/main/assets/
+    // )
 
     /** Порог чувствительности wake-детектора 0..1 (выше — чаще срабатывает, больше ложных). */
     const val WAKE_SENSITIVITY: Float = 0.65f
