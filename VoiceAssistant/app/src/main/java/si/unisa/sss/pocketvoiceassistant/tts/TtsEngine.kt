@@ -11,7 +11,7 @@ import java.util.concurrent.TimeUnit
 /**
  * Системный Android TextToSpeech — озвучивание полностью на устройстве.
  * [speakAndWait] блокирует вызывающий поток до окончания произношения,
- * чтобы микрофон (Porcupine) не слушал голос самого ассистента.
+ * чтобы микрофон детектора не слушал голос самого ассистента.
  */
 class TtsEngine(context: Context) {
 

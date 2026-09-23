@@ -14,8 +14,7 @@ android {
         versionCode = 1
         versionName = "0.1.0"
 
-        // ВАЖНО: Porcupine нативно работает только с этими ABI (armeabi-v7a, arm64-v8a, x86_64).
-        // Не добавляйте "x86" (32-битный эмулятор) — Porcupine его не поддерживает.
+        // ABI поддерживаемые Vosk (armeabi-v7a, arm64-v8a, x86_64; x86 32-bit не поддерживается).
         ndk {
             abiFilters += listOf("armeabi-v7a", "arm64-v8a", "x86_64")
         }
@@ -70,7 +69,7 @@ dependencies {
     implementation("androidx.lifecycle:lifecycle-service:2.8.3")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.8.1")
 
-    // Wake word — Picovoice Porcupine (офлайн, на устройстве)
+    // Wake word + STT — Vosk (офлайн, на устройстве, полностью бесплатен)
 
     // Speech-to-Text — Vosk (офлайн; версия с Maven Central проверена 24.09.2026)
     // Пак в этой версии — org.vosk.* (Model, Recognizer, RecognizerCallback)

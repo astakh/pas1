@@ -36,7 +36,7 @@ GitHub **не принимает пароли** по HTTPS. Нужен Personal 
 `settings.gradle.kts`, `gradle.properties`, `gradlew`, `README.md`.
 
 ⚠️ В `.gitignore` уже исключены: модели Vosk, `.ppn`-файлы, `local.properties` и `secrets.properties`.
-Свой Picovoice AccessKey не коммитьте в открытом репозитории — держите плейсхолдер в Config.kt
+Модель Vosk в assets можно коммитить (лицензия Apache 2.0), но лучше скачать её по инструкции перед сборкой.
 и вставляйте ключ только локально перед сборкой.
 
 ## 5. Выложить APK в Releases
