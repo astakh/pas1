@@ -71,7 +71,6 @@ dependencies {
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.8.1")
 
     // Wake word — Picovoice Porcupine (офлайн, на устройстве)
-    implementation("ai.picovoice:porcupine-android:3.0.0")
 
     // Speech-to-Text — Vosk (офлайн; версия с Maven Central проверена 24.09.2026)
     // Пак в этой версии — org.vosk.* (Model, Recognizer, RecognizerCallback)

@@ -1,33 +1,26 @@
 package si.unisa.sss.pocketvoiceassistant
 
-import ai.picovoice.porcupine.Porcupine
-
 /**
- * Единая точка конфигурации. Перед сборкой заполните значения ниже
- * (см. README.md, раздел «Что нужно подготовить»).
+ * Единая точка конфигурации. Picovoice больше НЕ нужен — ни регистрации, ни ключей.
+ * Кодовое слово детектируется моделью Vosk (та же модель, что и для распознавания команд).
  */
 object Config {
-    /** AccessKey из консоли Picovoice (https://console.picovoice.ai) — бесплатный. */
-    const val PICOVOICE_ACCESS_KEY: String = "ВСТАВЬТЕ_ВАШ_ACCESSKEY"
 
     /**
-     * Кодовое слово. Варианты:
-     *  - встроенное: BuiltInKeyword.JARVIS (или любой другой из enum)
-     *  - кастомное (например русское): CustomKeyword("vnimanie", "assets:///vnimanie_russian.ppn")
+     * Кодовые слова (любое из них активирует ассистента). Регистр не важен.
+     * ВАЖНО: слова должны распознаваться русской моделью Vosk — лучше всего
+     * работают редкие/чёткие слова: «джарвис», «компьютер», «алиса», «сири»,
+     * «привет». Можно добавить своё (например «внимание»).
      */
-    val WAKE_KEYWORD: WakeWord = WakeWord.BuiltInKeyword(Porcupine.BuiltInKeyword.JARVIS)
-    // val WAKE_KEYWORD: WakeWord = WakeWord.CustomKeyword(
-    //     label = "внимание",
-    //     ppnAssetPath = "vnimanie_russian.ppn" // файл лежит в app/src/main/assets/
-    // )
+    val WAKE_KEYWORDS: List<String> = listOf("джарвис", "computer", "jarvis")
 
-    /** Порог чувствительности wake-детектора 0..1 (выше — чаще срабатывает, больше ложных). */
-    const val WAKE_SENSITIVITY: Float = 0.65f
+    /** Защита от повторного срабатывания, мс (пока ассистент «думает», новые срабатывания игнорируются). */
+    const val WAKE_DEBOUNCE_MS: Long = 3_000L
 
     /**
      * Модель Vosk для распознавания русской речи (копируется в filesDir при первом запуске).
-     * ВАЖНО: это имя каталога внутри app/src/main/assets/vosk/ — оно должно совпадать
-     * с названием распакованной модели (vosk-model-small-ru-0.22).
+     * Имя каталога внутри app/src/main/assets/vosk/ должно совпадать с названием
+     * распакованной модели.
      */
     const val VOSK_MODEL_ASSET_DIR: String = "vosk-model-small-ru-0.22"
 
@@ -36,9 +29,4 @@ object Config {
 
     /** Макс. длительность фразы после кодового слова, мс (Vosk обрывает раньше — по тишине). */
     const val COMMAND_TIMEOUT_MS: Long = 10_000L
-}
-
-sealed class WakeWord {
-    data class BuiltInKeyword(val keyword: ai.picovoice.porcupine.Porcupine.BuiltInKeyword) : WakeWord()
-    data class CustomKeyword(val label: String, val ppnAssetPath: String) : WakeWord()
 }

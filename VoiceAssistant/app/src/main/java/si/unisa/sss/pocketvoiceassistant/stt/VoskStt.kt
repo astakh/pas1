@@ -15,7 +15,7 @@ import java.io.IOException
  * Офлайн распознавание речи (Vosk, 16 kHz mono PCM).
  * Используется ТОЛЬКО в активном состоянии (после кодового слова):
  * AudioRecord создаётся на время записи фразы и сразу освобождается,
- * чтобы не конфликтовать с микрофоном Porcupine.
+ * чтобы не конфликтовать с детектором кодового слова.
  */
 class VoskStt(private val context: Context) {
 
@@ -34,6 +34,10 @@ class VoskStt(private val context: Context) {
     }
 
     fun isModelLoaded(): Boolean = model != null
+
+    /** Модель должна быть загружена (используется WakeWordDetector). */
+    fun modelOrThrow(): Model =
+        model ?: throw ModelNotLoadedException("Модель Vosk ещё не загружена")
 
     /**
      * Блокирующая запись+распознавание одной фразы.

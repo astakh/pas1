@@ -15,7 +15,6 @@ import kotlinx.coroutines.launch
 import si.unisa.sss.pocketvoiceassistant.Config
 import si.unisa.sss.pocketvoiceassistant.MainActivity
 import si.unisa.sss.pocketvoiceassistant.R
-import si.unisa.sss.pocketvoiceassistant.WakeWord
 import si.unisa.sss.pocketvoiceassistant.state.AssistantState
 import si.unisa.sss.pocketvoiceassistant.stt.BooleanHolder
 import si.unisa.sss.pocketvoiceassistant.stt.ModelNotLoadedException
@@ -28,12 +27,12 @@ import si.unisa.sss.pocketvoiceassistant.wakeword.WakeWordDetector
  *
  *   IDLE -> (кодовое слово) -> LISTENING -> THINKING(заглушка) -> SPEAKING -> IDLE
  *
- * Все компоненты офлайн: Porcupine (wake), Vosk (STT), системный TTS (озвучка).
+ * Все компоненты офлайн и бесплатны: wake и STT — Vosk, озвучка — системный TTS.
  */
 class AssistantService : LifecycleService() {
 
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
-    private lateinit var wake: WakeWordDetector
+    private var wake: WakeWordDetector? = null
     private lateinit var stt: VoskStt
     private lateinit var tts: TtsEngine
     private val cancelFlag = BooleanHolder(false)
@@ -42,7 +41,6 @@ class AssistantService : LifecycleService() {
         super.onCreate()
         startForegroundNotification()
 
-        wake = WakeWordDetector(this)
         stt = VoskStt(this)
         tts = TtsEngine(this)
 
@@ -51,6 +49,7 @@ class AssistantService : LifecycleService() {
             try {
                 AssistantState.update { it.copy(phase = "Загрузка модели распознавания…") }
                 stt.prepareModel()
+                wake = WakeWordDetector(this@AssistantService, stt.modelOrThrow())
                 startWakeLoop()
             } catch (e: Exception) {
                 AssistantState.update { it.copy(phase = "Ошибка загрузки модели: ${e.message}") }
@@ -59,21 +58,18 @@ class AssistantService : LifecycleService() {
     }
 
     private fun startWakeLoop() {
-        wake.start(
+        wake?.start(
             onWake = { onKeywordHeard() },
             onError = { e -> AssistantState.update { it.copy(phase = "Ошибка wake-детектора: ${e.message}") } }
         )
         AssistantState.update { it.copy(phase = "Слушаю кодовое слово «${keywordLabel()}»…") }
     }
 
-    private fun keywordLabel(): String = when (val kw = Config.WAKE_KEYWORD) {
-        is WakeWord.BuiltInKeyword -> kw.keyword.name
-        is WakeWord.CustomKeyword -> kw.label
-    }
+    private fun keywordLabel(): String = Config.WAKE_KEYWORDS.joinToString("/")
 
     private fun onKeywordHeard() {
         AssistantState.update { it.copy(phase = "Слышу команду…", heardText = "", replyText = "") }
-        wake.pause() // освобождаем микрофон для Vosk
+        wake?.stop() // освобождаем микрофон для Vosk
 
         scope.launch {
             try {
@@ -82,7 +78,7 @@ class AssistantService : LifecycleService() {
                 } catch (e: ModelNotLoadedException) {
                     // Модель ещё грузится или отсутствует в assets — не роняем сервис
                     AssistantState.update { it.copy(phase = e.message ?: "Модель Vosk недоступна") }
-                    wake.resume()
+                    wake?.resume()
                     return@launch
                 }
                 AssistantState.update { it.copy(phase = "Обработка…", heardText = text) }
@@ -95,7 +91,7 @@ class AssistantService : LifecycleService() {
             } catch (e: Exception) {
                 AssistantState.update { it.copy(phase = "Ошибка: ${e.message}") }
             } finally {
-                wake.resume()
+                wake?.resume()
                 AssistantState.update { it.copy(phase = "Слушаю кодовое слово «${keywordLabel()}»…") }
             }
         }
@@ -135,7 +131,7 @@ class AssistantService : LifecycleService() {
     // LifecycleService в androidx 2.8+ объявляет onBind(final Intent) — переопределять нельзя.
     override fun onDestroy() {
         cancelFlag.value = true
-        wake.release()
+        wake?.release()
         stt.release()
         tts.shutdown()
         AssistantState.update { it.copy(phase = "Остановлено") }

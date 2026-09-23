@@ -30,7 +30,7 @@ wake → `pause()` детектора (освобождает микрофон) 
 ### 1. AccessKey Picovoice (обязательно)
 1. Зарегистрируйтесь бесплатно на https://console.picovoice.ai
 2. Скопируйте **AccessKey** (Porcupine → AccessKey).
-3. Вставьте его в `app/src/main/java/.../Config.kt` → `PICOVOICE_ACCESS_KEY`.
+3. Вставьте его в `app/src/main/java/.../Config.kt` → `WAKE_KEYWORDS`.
    ⚠️ Ключ привязан к вашему аккаунту — **не коммитьте его в публичный репозиторий**.
 
 ### 2. Кодовое слово

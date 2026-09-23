@@ -10,11 +10,7 @@
    (имя внутренней папки из архива должно совпадать со значением
    Config.VOSK_MODEL_ASSET_DIR — сейчас "vosk-model-small-ru-0.22")
 
-2) app/src/main/assets/vnimanie_russian.ppn
-   Кастомное кодовое слово для Porcupine. Сгенерируйте на
-   https://console.picovoice.ai  (Porcupine → Training Keyword,
-   транслит: "vnimanie", язык Russian).
-   ЛИБО НЕ НУЖНО: закомментируйте CustomKeyword в Config.kt и раскомментируйте
-   строку с BuiltInKeyword JARVIS — тогда .ppn не требуется вообще.
+ЭТО ВСЁ. Picovoice/Porcupine больше не нужны — кодовое слово детектируется
+этой же моделью Vosk (список слов настраивается в Config.WAKE_KEYWORDS).
 
-После добавления файлов: git add -A && ./gradlew assembleDebug (или Build APK в Android Studio).
+После добавления файлов: ./gradlew assembleDebug (или Build APK в Android Studio).
