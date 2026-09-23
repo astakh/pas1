@@ -28,8 +28,8 @@ object Config {
     /** Язык системного TTS. */
     const val TTS_LANGUAGE: String = "ru-RU"
 
-    /** Максимальная длительность фразы после пробуждения, мс. */
-    const val COMMAND_TIMEOUT_MS: Long = 8_000L
+    /** Макс. длительность фразы после кодового слова, мс (Vosk обрывает раньше — по тишине). */
+    const val COMMAND_TIMEOUT_MS: Long = 10_000L
 }
 
 sealed class WakeWord {
