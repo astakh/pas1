@@ -68,11 +68,17 @@ class AssistantService : LifecycleService() {
     private fun keywordLabel(): String = Config.WAKE_KEYWORDS.joinToString("/")
 
     private fun onKeywordHeard() {
-        AssistantState.update { it.copy(phase = "Слышу команду…", heardText = "", replyText = "") }
+        AssistantState.update { it.copy(phase = "Активация…", heardText = "", replyText = "") }
         wake?.stop() // освобождаем микрофон для Vosk
 
         scope.launch {
             try {
+                // 1) Озвучиваем подтверждение активации и ждём его окончания,
+                //    чтобы фраза «Слушаю, босс» не попала в распознавание команды.
+                tts.speakAndWait(Config.ACTIVATION_PHRASE)
+
+                // 2) Режим записи команды
+                AssistantState.update { it.copy(phase = "Слышу команду…", heardText = "", replyText = "") }
                 val text = try {
                     stt.listenOnce(Config.COMMAND_TIMEOUT_MS, cancelFlag)
                 } catch (e: ModelNotLoadedException) {
@@ -91,6 +97,9 @@ class AssistantService : LifecycleService() {
             } catch (e: Exception) {
                 AssistantState.update { it.copy(phase = "Ошибка: ${e.message}") }
             } finally {
+                // 3) После озвучивания — короткая пауза (эхо ответа не должно самоактивировать
+                //    детектор), затем возврат в фоновый режим ожидания кодового слова.
+                kotlinx.coroutines.delay(Config.RESUME_DELAY_MS)
                 wake?.resume()
                 AssistantState.update { it.copy(phase = "Слушаю кодовое слово «${keywordLabel()}»…") }
             }
