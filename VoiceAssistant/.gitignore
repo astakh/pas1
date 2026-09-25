@@ -1,0 +1,22 @@
+# Gradle / сборка
+.gradle/
+build/
+app/build/
+local.properties
+
+# IDE
+.idea/
+*.iml
+.DS_Store
+
+# Секреты: свой ключ Picovoice не коммитить!
+secrets.properties
+
+# Модели (большие файлы, добавляются локально перед сборкой)
+app/src/main/assets/vosk/
+app/src/main/assets/*.ppn
+
+# Gradle wrapper jar обязателен для сборки — не игнорируем
+!gradle/wrapper/gradle-wrapper.jar
+!gradlew
+!gradlew.bat

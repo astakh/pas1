@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Исключаем из бэкапа крупные ассеты (модель Vosk, .ppn) -->
+<full-backup-content>
+    <exclude domain="file" path="vosk/" />
+    <exclude domain="file" path="vnimanie_russian.ppn" />
+</full-backup-content>
